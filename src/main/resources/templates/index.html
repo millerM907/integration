@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        #chart {
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        Построить график:
+        <button onclick="createChart('temp')">Температура</button>
+        <button onclick="createChart('humidity')">Влажность</button>
+    </div>
+    <div id="chart">
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script type="text/javascript" th:src="@{js/jquery.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.0/chart.min.js"></script>
+</body>
+</html>
+
+
+<script>
+    function createChart(mode){
+        const apiUrl = "/api/v1.0/";
+        const tempApiUrl = apiUrl + "temp"
+        const humidityApiUrl = apiUrl + "humidity";
+
+        clearChartDiv("chart");
+
+        switch(mode){
+            case "temp":
+                createCharts(getDataFromServer(tempApiUrl), "Температура С");
+                break;
+            case "humidity":
+                createCharts(getDataFromServer(humidityApiUrl), "Влажность %");
+                break;
+        }
+    }
+
+    function clearChartDiv(elementId) {
+        document.getElementById(elementId).innerHTML = "<canvas id=\"myChart\"></canvas>";
+    }
+
+    //получение данных с сервера
+    function getDataFromServer(apiUrl){
+        let tempArray = new Array();
+        $.ajax({
+            url: apiUrl,
+            type: 'GET',
+            cache: false,
+            async: false,
+            contentType : false,
+            processData: false,
+            dataType: "text",
+            success: function (data) {
+                tempArray = JSON.parse(data);
+            },
+            error: function (data) {
+                alert("Ошибка получения данных с сервера!")
+            }
+        });
+        return tempArray;
+    }
+
+    // построение графика
+    function createCharts(data, chartName){
+        let dates = [];
+        let values = [];
+
+        for(let elem of data) {
+            dates.push(elem["date"]);
+            values.push(elem["value"]);
+        }
+
+        let canvas = document.getElementById("myChart");
+
+        /*Chart.defaults.global.defaultFontFamily = "Lato";
+        Chart.defaults.global.defaultFontSize = 18;*/
+
+        let chartData = {
+            labels: dates,
+            datasets: [{
+                label: chartName,
+                data: values,
+                borderColor: 'red'
+            }]
+        };
+
+        let chartOptions = {
+            legend: {
+                display: true,
+                position: 'top',
+                labels: {
+                    boxWidth: 50,
+                    fontColor: 'black'
+                }
+            }
+        };
+
+        let lineChart = new Chart(canvas, {
+            type: 'line',
+            data: chartData,
+            options: chartOptions
+        });
+    }
+
+</script>
