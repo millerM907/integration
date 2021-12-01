@@ -8,8 +8,8 @@
 
 //SoftwareSerial mySerial(10, 11); // RX, TX
 
-const char* ssid = "MTS_Router_096573";
-const char* password = "kaAUCXPe3q";
+const char* ssid = "";
+const char* password = "";
 
 //Your Domain name with URL path or IP address with path
 //const char* serverName = "http://192.168.1.2:8090/api/v1.0/";
